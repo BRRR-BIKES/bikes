@@ -15,6 +15,7 @@ Send a POST request::
     curl -d "foo=bar&bin=baz" http://localhost
 
 """
+import os
 from cgi import parse_header, parse_multipart
 from sys import version as python_version
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
