@@ -87,7 +87,7 @@ class S(BaseHTTPRequestHandler):
     def do_POST(self):
         self._set_headers()
 
-def run(server_class=HTTPServer, handler_class=S, port=8080):
+def run(server_class=HTTPServer, handler_class=S, port=80):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
     print 'Starting httpd...'
