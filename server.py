@@ -16,15 +16,17 @@ Send a POST request::
 
 """
 import os
+import time
 from cgi import parse_header, parse_multipart
 from sys import version as python_version
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import SocketServer
 
 database = {
-            'longtitude':[0.0],
-            'latitude':[0.0],
-            'theft':[0]
+            'time':[str(time.time())],
+            'longtitude':['0.0'],
+            'latitude':['0.0'],
+            'theft':['0']
             }
 
 if python_version.startswith('3'):
@@ -47,8 +49,8 @@ class S(BaseHTTPRequestHandler):
         # Retrieve last location and theft status
         # This method supposed to be called by android app
         if (self.path == '/get') or (self.path == '/get/'):
-            lat = database['latitude'][-1]
-            lon = database['longtitude'][-1]
+            lat = [e for e in database['latitude'] if e != ''][-1]
+            lon = [e for e in database['longtitude'] if e != ''][-1]
             theft = database['theft'][-1]
             self.wfile.write(str(lat)+'\n'+str(lon) + '\n' + str(theft)+'\n')
 
@@ -58,9 +60,22 @@ class S(BaseHTTPRequestHandler):
             getvars = parse_qs(
                     string_to_parse,
                     keep_blank_values=1)
-            database['longtitude'].append(float(getvars['long'][0]))
-            database['latitude'].append(float(getvars['lat'][0]))
-            database['theft'].append(int(getvars['theft'][0]))
+            # save data as bunch of strings
+            database['time'].append(str(time.time()))
+            if 'long' in getvars.keys():
+                database['longtitude'].append(getvars['long'][0])
+            else:
+                database['longtitude'].append('')
+
+            if 'lat' in getvars.keys():
+                database['latitude'].append(getvars['lat'][0])
+            else:
+                database['latitude'].append('')
+
+            if 'theft' in getvars.keys():
+                database['theft'].append(getvars['theft'][0])
+            else:
+                database['theft'].append('')
 
     # do nothing
     def do_HEAD(self):
@@ -69,10 +84,6 @@ class S(BaseHTTPRequestHandler):
     # useless now, nobody call this function
     def parse_POST(self):
         ctype, pdict = parse_header(self.headers['content-type'])
-        #if ctype == 'application/json':
-        #    length = int(self.headers['content-length'])
-        #    lines = self.rfile.read(length)
-        #    print lines
         if ctype == 'multipart/form-data':
             postvars = parse_multipart(self.rfile, pdict)
         elif (ctype == 'application/x-www-form-urlencoded') or (ctype == 'application/json'):
@@ -96,7 +107,7 @@ def run(server_class=HTTPServer, handler_class=S, port=8080):
 
 if __name__ == "__main__":
     from sys import argv
-
+    # PORT is set withing heroku's enviroment variable to 80
     port = int(os.environ.get('PORT', 5000))
     if len(argv) == 2:
         run(port=int(argv[1]))
