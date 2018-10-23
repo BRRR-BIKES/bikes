@@ -96,8 +96,9 @@ def run(server_class=HTTPServer, handler_class=S, port=8080):
 if __name__ == "__main__":
     from sys import argv
 
+    port = int(os.environ.get('PORT', 5000))
     if len(argv) == 2:
         run(port=int(argv[1]))
     else:
-        run()
+        run(port=port)
 
