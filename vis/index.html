@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<body>
+
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="pathseg.js"></script>
+<script src="path-data-polyfill.js"></script>
+<script type="text/javascript">
+    function animatePath(my_path){
+  var current_x = 0;
+  var current_y = 0;
+  var dest_x = 0;
+  var dest_y = 0;
+
+  // We're just using D3 to create a SVG group to put our lines into
+  var linegroup = d3.select("g").append("g");
+
+  for (var segment_i = 0 ; segment_i < my_path.pathSegList.numberOfItems; segment_i++) {
+
+    var item = my_path.pathSegList.getItem(segment_i);
+
+    switch (item.pathSegType) {
+
+      // If matched thing is a Path "move pointer" command
+      case SVGPathSeg.PATHSEG_MOVETO_ABS:
+        current_x = item.x;
+        current_y = item.y;
+
+      // If matched thing is a Path "draw line" command
+      case SVGPathSeg.PATHSEG_LINETO_ABS:
+        dest_x = item.x;
+        dest_y = item.y;
+
+        // Create the actual line
+        linegroup.append("line")
+          .style("stroke", "#f11f50")
+          .style("stroke-width", "1.5px")
+          .attr("stroke-linecap", "butt")
+          .attr("x1", current_x)
+          .attr("y1", current_y)
+          .attr("x2", dest_x)
+          .attr("y2", dest_y)
+          .style("opacity", 0)
+          .transition()
+          .duration(20)
+          .delay(function(){ return segment_i*10; })
+          .style("opacity", 0.8)
+          .ease("cubicIn")
+          .transition()
+          .duration(10)
+          .delay(function(){ return segment_i*13; })
+          .ease("cubicOut")
+          .style("opacity", 0.2)
+
+        current_x = item.x;
+        current_y = item.y;
+    }
+  }
+  // Once we have the path converted to a group of lines, there's no need to keep the path
+  my_path.style.display = "none";
+}
+</script>
+ <div id="vis"></div>
+
+<script>
+d3.xml("berlin.svg").mimeType("image/svg+xml").get(function(error, xml) {
+  if (error) throw error;
+  document.body.appendChild(xml.documentElement);
+});
+</script>
