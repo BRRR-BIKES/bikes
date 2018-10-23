@@ -55,7 +55,7 @@ class S(BaseHTTPRequestHandler):
         if self.path[0:5] == '/set/':
             string_to_parse = self.path[5:]
             getvars = parse_qs(
-                    string_to_parse,e
+                    string_to_parse,
                     keep_blank_values=1)
             database['longtitude'].append(float(getvars['long'][0]))
             database['latitude'].append(float(getvars['lat'][0]))
