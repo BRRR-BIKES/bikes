@@ -23,7 +23,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import SocketServer
 
 database = {
-            'time':[str(time.time())],
+            'time':[str(int(time.time()))],
             'longtitude':['0.0'],
             'latitude':['0.0'],
             'theft':['0']
@@ -49,10 +49,11 @@ class S(BaseHTTPRequestHandler):
         # Retrieve last location and theft status
         # This method supposed to be called by android app
         if (self.path == '/get') or (self.path == '/get/'):
+            t = database['time'][-1]
             lat = [e for e in database['latitude'] if e != ''][-1]
             lon = [e for e in database['longtitude'] if e != ''][-1]
             theft = database['theft'][-1]
-            self.wfile.write(str(lat)+'\n'+str(lon) + '\n' + str(theft)+'\n')
+            self.wfile.write(str(t)+'\n'+str(lat)+'\n'+str(lon) + '\n' + str(theft)+'\n')
 
         # This method supposed to be called by tacker within the bike
         if self.path[0:5] == '/set/':
@@ -61,7 +62,7 @@ class S(BaseHTTPRequestHandler):
                     string_to_parse,
                     keep_blank_values=1)
             # save data as bunch of strings
-            database['time'].append(str(time.time()))
+            database['time'].append(str(int(time.time())))
             if 'long' in getvars.keys():
                 database['longtitude'].append(getvars['long'][0])
             else:
